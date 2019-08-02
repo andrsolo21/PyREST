@@ -16,6 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from django.conf.urls import url
+
+from shop import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^$', views.hello),
+    url(r'^qwe/', views.hello2),
+    url(r'^imports/', views.imports),
+    url(r'^post/', views.post)
 ]
