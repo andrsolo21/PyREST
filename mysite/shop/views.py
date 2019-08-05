@@ -38,16 +38,34 @@ def imports(request):
 def checkPersones(personesMap):
     personesList = []
     ids = set()
-    imp = Imp(num = len(personesMap))
+    imp_id = Imp.objects.all().aggregate(Max('import_id'))['import_id__max']
+    imp = Imp(num = len(personesMap), import_id = imp_id + 1)
     imp.save()
-    print(imp['import_id'])
-    #imp_id = Imp.objects.all().aggregate(Max('import_id'))
-
-    #news = News(title="Имя страницы", content="HTML текст")
-    #for i in personesMap:
-    #    if i['citizen_id'] in ids:
-    #        return None
-    #    personesList.append(Person)
 
 
+    for i in personesMap:
+        if i['citizen_id'] in ids:
+            return None
+        pers = Person(
+            citizen_id = i['citizen_id'],
+            import_id = imp,
+            town = i['town'],
+            street = i['street'],
+            building = i['building'],
+            appartement = i['appartement'],
+            name = i['name'],
+            birth_date = parseDate(i['birth_date']),
+            gender = i['gender']
+        )
+        personesList.append(pers)
+    for i in personesList:
+        i.save()
 
+def parseDate(s):
+    #TODO Проверка даты на сегоддяшнюю дату + Check spelling
+    #if len(s) != 11:
+    #    return None
+    m = s.split('.')
+    if len(m) != 3:
+        return None
+    return '-'.join(m[::-1])
