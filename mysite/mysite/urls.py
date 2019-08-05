@@ -20,6 +20,10 @@ from django.conf.urls import url
 
 from shop import views
 
+#from . import views
+
+#from ..shop import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^$', views.hello),
