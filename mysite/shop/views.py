@@ -40,8 +40,8 @@ def checkPersones(personesMap):
     ids = set()
     relativeList = []
 
-    imp_id = Imp.objects.all().aggregate(Max('import_id'))['import_id__max']
-    imp = Imp(num = len(personesMap), import_id = imp_id + 1)
+    #imp_id = Imp.objects.all().aggregate(Max('import_id'))['import_id__max']
+    imp = Imp(num = len(personesMap))
     imp.save()
 
     for i in personesMap:
@@ -50,14 +50,6 @@ def checkPersones(personesMap):
         ids.add(i['citizen_id'])
 
     for i in personesMap:
-        for j in i['relatives']:
-            if j not in ids:
-                return None
-            relativeList.append(Relatives(
-                import_id = imp,
-                citizen_id = i['citizen_id'],
-                relative_id = j
-            ))
 
         pers = Person(
             citizen_id = i['citizen_id'],
@@ -70,11 +62,24 @@ def checkPersones(personesMap):
             birth_date = parseDate(i['birth_date']),
             gender = i['gender']
         )
-        personesList.append(pers)
 
+        personesList.append(pers)
 
     for i in personesList:
         i.save()
+
+    for i in range(len(personesMap)):
+
+        for j in personesMap[i]['relatives']:
+            if j not in ids:
+                return None
+            relativeList.append(Relatives(
+                import_id = imp,
+                citizen_id = personesMap[i]['citizen_id'],
+                relative_id = j,
+                person_id = personesList[i]
+            ))
+
     for i in relativeList:
         i.save()
 

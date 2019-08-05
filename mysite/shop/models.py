@@ -7,7 +7,7 @@ class Person(models.Model):
     class Meta:
         unique_together = (('import_id', 'citizen_id'),)
 
-    person_id = models.AutoField(primary_key=True)
+    #person_id = models.AutoField(primary_key=True)
     import_id = models.ForeignKey('Imp', on_delete='CASCADE')
     citizen_id = models.IntegerField()
     town = models.CharField(max_length=50)
