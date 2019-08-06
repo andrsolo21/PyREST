@@ -26,8 +26,10 @@ from shop import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^$', views.hello),
-    url(r'^qwe/', views.hello2),
+    #url(r'^$', views.hello),
+    #url(r'^qwe/', views.hello2),
     url(r'^imports/', views.imports),
-    url(r'^post/', views.post)
+    #url(r'^imports/<int:imp>/citizens/5', views.patchImp)
+    url(r'^import/<int:imp>/citizens/<int:cit>/', views.patchImp)
+    #url(r'^post/', views.post)
 ]
