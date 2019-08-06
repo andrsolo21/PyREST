@@ -26,9 +26,11 @@ def imports(request):
         #for i in data['citizens']:
             #per = serialize(i)
             #per.save()
-        checkPersones(data['citizens'])
-
-        return HttpResponse(str(len(data['citizens'])))
+        otv = checkPersones(data['citizens'])
+        if otv:
+            return JsonResponse({'data':{'import_id':str(otv)}}, status = 201)
+        else:
+            return HttpResponse(status = 400)
     if request.method == "GET":
         return HttpResponse('get')
 
@@ -46,6 +48,7 @@ def checkPersones(personesMap):
 
     for i in personesMap:
         if i['citizen_id'] in ids:
+            deleteImport(imp.import_id)
             return None
         ids.add(i['citizen_id'])
 
@@ -65,23 +68,26 @@ def checkPersones(personesMap):
 
         personesList.append(pers)
 
-    for i in personesList:
-        i.save()
-
     for i in range(len(personesMap)):
 
+        personesList[i].save()
         for j in personesMap[i]['relatives']:
             if j not in ids:
+                deleteImport(imp.import_id)
                 return None
-            relativeList.append(Relatives(
+            Relatives(
                 import_id = imp,
                 citizen_id = personesMap[i]['citizen_id'],
                 relative_id = j,
                 person_id = personesList[i]
-            ))
+            ).save()
+    return imp.import_id
 
-    for i in relativeList:
-        i.save()
+
+def deleteImport(import_id):
+    Relatives.objects.filter(import_id=import_id).delete()
+    Person.objects.filter(import_id=import_id).delete()
+    Imp.objects.filter(import_id=import_id).delete()
 
 def parseDate(s):
     #TODO Проверка даты на сегоддяшнюю дату + Check spelling

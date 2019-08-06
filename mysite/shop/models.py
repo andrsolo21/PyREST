@@ -32,3 +32,4 @@ class Relatives(models.Model):
 class Imp(models.Model):
     import_id = models.AutoField(primary_key=True)
     num = models.IntegerField()
+    #deleted_at =
