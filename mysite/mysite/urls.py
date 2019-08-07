@@ -25,11 +25,15 @@ from shop import views
 #from ..shop import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    #path('admin/', admin.site.urls),
     #url(r'^$', views.hello),
     #url(r'^qwe/', views.hello2),
-    url(r'^imports/', views.imports),
+    path('imports/', views.imports),
+    #url(r'^import/([0-9]+)', views.patchImp),
+    path('imports/<int:imp>/citizens/<int:cit>', views.patchImp),
+    path('imports/<int:imp>/citizens/<int:cit>/', views.patchImp),
     #url(r'^imports/<int:imp>/citizens/5', views.patchImp)
-    url(r'^import/<int:imp>/citizens/<int:cit>/', views.patchImp)
+
+
     #url(r'^post/', views.post)
 ]

@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 
+
+
 class Person(models.Model):
 
     class Meta:
@@ -18,6 +20,31 @@ class Person(models.Model):
     birth_date = models.DateField()
     gender = models.CharField(max_length=10)
     #relatives = models.TextField()
+
+    def as_json(self, relatives):
+        return dict(
+            import_id = self.import_id,
+            citizen_id = self.citizen_id,
+            town = self.town,
+            street = self.street,
+            building = self.building,
+            appartement = self.appartement,
+            name = self.name,
+            birth_day = self.birth_date,
+            gender = self.gender,
+            relatives = relatives,
+        )
+
+    forChange = {
+        'town',
+        'street',
+        'building',
+        'appartement',
+        'name',
+        'birth_date',
+        'gender',
+        'relatives',
+    }
 
 class Relatives(models.Model):
     class Meta:
