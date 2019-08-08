@@ -19,10 +19,10 @@ def imports(request):
     if request.method == "POST":
         data = json.loads(request.body)
         otv = checkPersones(data['citizens'])
-        if otv:
-            return JsonResponse({'data':{'import_id':str(otv)}}, status = 201)
+        if not otv.isError():
+            return JsonResponse({'data':{'import_id':str(otv.import_id)}}, status = 201)
         else:
-            return HttpResponse(status = 400)
+            return JsonResponse(otv.as_json() ,status = otv.numError)
 
     return HttpResponse(status = 401)
 
@@ -31,18 +31,22 @@ def patchImp(request, imp, cit):
     if request.method == "PATCH":
         pers = getPerson(imp, cit)
         if not pers:
-            return HttpResponseNotFound("Person not found")
+            return JsonResponse(MyError("person not found").as_json(),status = 403)
 
         data = json.loads(request.body)
 
-        pers2 = changeProfile(data, pers)
+        pers = changeProfile(data, pers)
 
-        if pers2.isError():
-            return HttpResponse(pers.textError,status = pers.numError)
+        if pers.isError():
+            return JsonResponse(pers.as_json(),status = pers.numError)
 
-        return HttpResponse(pers.as_json(getRelatives(pers.id)), status = 200)
+        return JsonResponse(dict( data = pers.as_json(getRelatives(pers.id))), status = 200)
 
     return HttpResponse(status = 501)
+
+@csrf_exempt
+def getImport(request, imp):
+
 
 def changeProfile(data, pers):
     for i in data:
@@ -93,14 +97,16 @@ def workWithRelatives(pers, futRel):
     toDel = lastRel - futRel
     toAdd = futRel - lastRel
 
+    #return MyError("-".join(list(toDel)) + " * " + "+".join(list(toAdd)))
+
     for i in toDel:
-        Relatives.objects.filter(import_id = pers.import_id, citizen_id = pers.citizen_id).delete()
-        Relatives.objects.filter(import_id = pers.import_id, citizen_id = i).delete()
+        Relatives.objects.filter(import_id = pers.import_id, relative_id = pers.citizen_id, citizen_id = i).delete()
+        Relatives.objects.filter(import_id = pers.import_id, relative_id = i, citizen_id = pers.citizen_id).delete()
 
     for i in toAdd:
         pers2 = getPerson(pers.import_id, i)
         if not pers2:
-            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i))
+            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i), 404)
 
         Relatives(
             import_id = pers.import_id,
@@ -113,15 +119,16 @@ def workWithRelatives(pers, futRel):
             import_id = pers.import_id,
             citizen_id = i,
             relative_id = pers.citizen_id,
-            person_id = pers,
+            person_id = pers2,
         ).save()
+    return pers
 
 def getRelatives(perId):
     """function for geting set of id relatives of person with perId"""
     rel = Relatives.objects.filter(person_id = perId) #.values('citizen_id')
     ids = set()
     for i in rel:
-        ids.add(i.citizen_id)
+        ids.add(i.relative_id)
     #return set(rel['citizen_id'])
     return ids
 
@@ -146,7 +153,7 @@ def checkPersones(personesMap):
     for i in personesMap:
         if i['citizen_id'] in ids:
             deleteImport(imp.import_id)
-            return None
+            return MyError("citizen_id " + str(i) + "is duplicated")
         ids.add(i['citizen_id'])
 
     for i in personesMap:
@@ -171,14 +178,14 @@ def checkPersones(personesMap):
         for j in personesMap[i]['relatives']:
             if j not in ids:
                 deleteImport(imp.import_id)
-                return None
+                return MyError("person " + str(imp.import_id) + "/" +  str(personesMap[i]['citizen_id']) + " (imp/cit) has nonexistent relative: " + str(j))
             Relatives(
                 import_id = imp,
                 citizen_id = personesMap[i]['citizen_id'],
                 relative_id = j,
                 person_id = personesList[i]
             ).save()
-    return imp.import_id
+    return imp
 
 def deleteImport(import_id):
     Relatives.objects.filter(import_id=import_id).delete()

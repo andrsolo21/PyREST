@@ -32,6 +32,8 @@ urlpatterns = [
     #url(r'^import/([0-9]+)', views.patchImp),
     path('imports/<int:imp>/citizens/<int:cit>', views.patchImp),
     path('imports/<int:imp>/citizens/<int:cit>/', views.patchImp),
+    path('imports/<int:imp>/citizens', views.getImport),
+    path('imports/<int:imp>/citizens/', views.getImport),
     #url(r'^imports/<int:imp>/citizens/5', views.patchImp)
 
 

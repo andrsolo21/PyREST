@@ -23,16 +23,16 @@ class Person(models.Model):
 
     def as_json(self, relatives):
         return dict(
-            import_id = self.import_id,
+            #import_id = self.import_id.import_id,
             citizen_id = self.citizen_id,
             town = self.town,
             street = self.street,
             building = self.building,
-            appartement = self.appartement,
+            apartement = self.appartement,
             name = self.name,
             birth_day = self.birth_date,
             gender = self.gender,
-            relatives = relatives,
+            relatives = list(relatives),
         )
 
     def isError(self):
@@ -63,3 +63,6 @@ class Imp(models.Model):
     import_id = models.AutoField(primary_key=True)
     num = models.IntegerField()
     #deleted_at =
+
+    def isError(self):
+        return False
