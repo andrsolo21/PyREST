@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Person, Relatives, Imp
+from .MyError import MyError
 from django.db.models import Max
 
 @csrf_exempt
@@ -34,10 +35,10 @@ def patchImp(request, imp, cit):
 
         data = json.loads(request.body)
 
-        pers = changeProfile(data, pers)
+        pers2 = changeProfile(data, pers)
 
-        if not pers:
-            return HttpResponse(status = 400)
+        if pers2.isError():
+            return HttpResponse(pers.textError,status = pers.numError)
 
         return HttpResponse(pers.as_json(getRelatives(pers.id)), status = 200)
 
@@ -45,8 +46,11 @@ def patchImp(request, imp, cit):
 
 def changeProfile(data, pers):
     for i in data:
+        if i == 'citizen_id':
+            return MyError("field citizen_id cannot be rewritten")
+
         if i not in Person.forChange:
-            return None
+            return MyError("field " + str(i) + " does not exist")
 
         if i == 'town':
             pers.town = data['town']
@@ -58,27 +62,27 @@ def changeProfile(data, pers):
             pers.building = data['building']
 
         if i == 'appartement':
-            pers.name = data['appartement']
+            pers.appartement = data['appartement']
 
         if i == 'name':
             pers.name = data['name']
 
         if i == 'gender':
-            pers.name = data['gender']
+            pers.gender = data['gender']
 
         if i == 'birth_date':
             date = parseDate(data['birth_date'])
             if not date:
-                return None
+                return MyError('cannot parse date')
             else:
                 pers.birth_date = date
 
-        pers[i] = data[i]
 
-    if data['relatives']:
-        if not workWithRelatives(pers, set(data['relatives'])):
-            return None
 
+    if 'relatives' in data:
+        pers = workWithRelatives(pers, set(data['relatives']))
+        if pers.isError():
+            return pers
     pers.save()
     return pers
 
@@ -96,7 +100,7 @@ def workWithRelatives(pers, futRel):
     for i in toAdd:
         pers2 = getPerson(pers.import_id, i)
         if not pers2:
-            return None
+            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i))
 
         Relatives(
             import_id = pers.import_id,
@@ -114,21 +118,22 @@ def workWithRelatives(pers, futRel):
 
 def getRelatives(perId):
     """function for geting set of id relatives of person with perId"""
-    rel = Relatives.objects.filter(person_id = perId).values('citizen_id')
-    #ids = set()
-    #for i in rel:
-    #    ids.add(i.citizen_id)
-    return set(rel['citizen_id'])
+    rel = Relatives.objects.filter(person_id = perId) #.values('citizen_id')
+    ids = set()
+    for i in rel:
+        ids.add(i.citizen_id)
+    #return set(rel['citizen_id'])
+    return ids
 
 def getPerson(imp, cit):
     """"""
     try:
         pers = Person.objects.filter(import_id = imp , citizen_id = cit)
     except:
-        return None
+        return MyError("DB error")
     if len(pers):
         return pers[0]
-    return None
+    return MyError("cannot find person i_id/c_id: " + str(imp) + "/" + str(cit))
 
 def checkPersones(personesMap):
     personesList = []

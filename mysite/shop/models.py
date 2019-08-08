@@ -35,6 +35,9 @@ class Person(models.Model):
             relatives = relatives,
         )
 
+    def isError(self):
+        return False
+
     forChange = {
         'town',
         'street',
