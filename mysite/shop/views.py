@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Person, Relatives, Imp
 from .MyError import MyError
+from .Birthdays import Birthdays
 from django.db.models import Max
 
 @csrf_exempt
@@ -53,6 +54,26 @@ def getImportR(request, imp):
         return JsonResponse(dict( data = perss), status = 200)
     return HttpResponse(status = 501)
 
+@csrf_exempt
+def birthdayR(request, imp):
+    if request.method == "GET":
+        otv, err = getBirthdays(imp)
+        if not err:
+            return JsonResponse(otv.as_json(),status = otv.numError)
+        return JsonResponse(dict( data = otv), status = 200)
+    return HttpResponse(status = 501)
+
+def getBirthdays(imp):
+    rels = Relatives.objects.filter(import_id = imp)
+    if not len(rels):
+        return MyError('cannot find persones with this import_id', 404), False
+
+    DRs = Birthdays()
+
+    for i in rels:
+        DRs.add(str(i.person_id.birth_date.month), str(i.relative_id))
+
+    return DRs.generate(), True
 
 
 def getImport(imp):
