@@ -28,12 +28,15 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     #url(r'^$', views.hello),
     #url(r'^qwe/', views.hello2),
-    path('imports/', views.imports),
+    path('imports/', views.importsR),
+    path('imports', views.importsR),
     #url(r'^import/([0-9]+)', views.patchImp),
-    path('imports/<int:imp>/citizens/<int:cit>', views.patchImp),
-    path('imports/<int:imp>/citizens/<int:cit>/', views.patchImp),
-    path('imports/<int:imp>/citizens', views.getImport),
-    path('imports/<int:imp>/citizens/', views.getImport),
+    path('imports/<int:imp>/citizens/<int:cit>', views.patchImpR),
+    path('imports/<int:imp>/citizens/<int:cit>/', views.patchImpR),
+    path('imports/<int:imp>/citizens', views.getImportR),
+    path('imports/<int:imp>/citizens/', views.getImportR),
+    path('imports/<int:imp>/citizens/birthdays', views.birthdayR),
+    path('imports/<int:imp>/citizens/birthdays/', views.birthdayR),
     #url(r'^imports/<int:imp>/citizens/5', views.patchImp)
 
 

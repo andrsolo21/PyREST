@@ -15,7 +15,7 @@ def post(request):
     return JsonResponse(data=data)
 
 @csrf_exempt
-def imports(request):
+def importsR(request):
     if request.method == "POST":
         data = json.loads(request.body)
         otv = checkPersones(data['citizens'])
@@ -27,7 +27,7 @@ def imports(request):
     return HttpResponse(status = 401)
 
 @csrf_exempt
-def patchImp(request, imp, cit):
+def patchImpR(request, imp, cit):
     if request.method == "PATCH":
         pers = getPerson(imp, cit)
         if not pers:
@@ -45,8 +45,25 @@ def patchImp(request, imp, cit):
     return HttpResponse(status = 501)
 
 @csrf_exempt
-def getImport(request, imp):
+def getImportR(request, imp):
+    if request.method == "GET":
+        perss, err = getImport(imp)
+        if not err:
+            return JsonResponse(perss.as_json(),status = perss.numError)
+        return JsonResponse(dict( data = perss), status = 200)
+    return HttpResponse(status = 501)
 
+
+
+def getImport(imp):
+    perss = Person.objects.filter(import_id = imp)
+    if not len(perss):
+        return MyError('cannot find persones with this import_id', 404), False
+
+    otv = []
+    for i in perss:
+        otv.append(i.as_json(getRelatives(i.id)))
+    return otv, True
 
 def changeProfile(data, pers):
     for i in data:
