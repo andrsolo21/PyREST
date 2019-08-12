@@ -36,6 +36,12 @@ class Person(models.Model):
         )
 
     def isError(self):
+
+        """
+        It is not error, there fore
+        :return: FALSE
+        """
+
         return False
 
     forChange = {
@@ -65,4 +71,10 @@ class Imp(models.Model):
     #deleted_at =
 
     def isError(self):
+
+        """
+        It is not error too, there fore
+        :return: FALSE
+        """
+
         return False

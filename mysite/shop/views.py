@@ -12,11 +12,25 @@ from django.db.models import Max
 
 @csrf_exempt
 def post(request):
+
+    """
+    It is the mirror
+    :param request: http request
+    :return: http response
+    """
+
     data = json.load(request)
     return JsonResponse(data=data)
 
 @csrf_exempt
 def importsR(request):
+
+    """
+    Handler for the first request in SfYBS(ship for yandex backend school)
+    :param request: http request
+    :return: http response
+    """
+
     if request.method == "POST":
         data = json.loads(request.body)
         otv = checkPersones(data['citizens'])
@@ -29,6 +43,15 @@ def importsR(request):
 
 @csrf_exempt
 def patchImpR(request, imp, cit):
+
+    """
+    Handler for the second request in SfYBS(ship for yandex backend school)
+    :param request: http request
+    :param imp: number of import_id of the person
+    :param cit: number of citizen_id of the person
+    :return: http response
+    """
+
     if request.method == "PATCH":
         pers = getPerson(imp, cit)
         if not pers:
@@ -47,6 +70,14 @@ def patchImpR(request, imp, cit):
 
 @csrf_exempt
 def getImportR(request, imp):
+
+    """
+    Handler for the third request in SfYBS(ship for yandex backend school)
+    :param request: http request
+    :param imp: number of import_id of the persons
+    :return: http response
+    """
+
     if request.method == "GET":
         perss, err = getImport(imp)
         if not err:
@@ -56,6 +87,15 @@ def getImportR(request, imp):
 
 @csrf_exempt
 def birthdayR(request, imp):
+
+
+    """
+    Handler for the fourth request in SfYBS(ship for yandex backend school)
+    :param request: http request
+    :param imp: number of import_id of the persons
+    :return: http response
+    """
+
     if request.method == "GET":
         otv, err = getBirthdays(imp)
         if not err:
@@ -64,9 +104,18 @@ def birthdayR(request, imp):
     return HttpResponse(status = 501)
 
 def getBirthdays(imp):
+
+    """
+    Function help fourth handler
+    :param imp: number of import_id
+    :return:
+        good exodus: dictionary with month, citizen_id's and counts | TRUE
+        bad exodus: MyError with mail, that persons not found | FALSE
+    """
+
     rels = Relatives.objects.filter(import_id = imp)
     if not len(rels):
-        return MyError('cannot find persones with this import_id', 404), False
+        return MyError('cannot find persons with this import_id', 404), False
 
     DRs = Birthdays()
 
@@ -75,8 +124,16 @@ def getBirthdays(imp):
 
     return DRs.generate(), True
 
-
 def getImport(imp):
+
+    """
+    Function help third handler
+    :param imp: number of import_id
+    :return:
+        good exodus: list of persons in dict, which is rady for JSON | TRUE
+        bad exodus: MyError with mail, that persons not found | FALSE
+    """
+
     perss = Person.objects.filter(import_id = imp)
     if not len(perss):
         return MyError('cannot find persones with this import_id', 404), False
@@ -87,6 +144,16 @@ def getImport(imp):
     return otv, True
 
 def changeProfile(data, pers):
+
+    """
+    Function help second handler
+    :param data: dictionary with new changing fields
+    :param pers: Person(Model) old data
+    :return:
+        good exodus: person's dictionary
+        bad exodus: MyError with mail of error
+    """
+
     for i in data:
         if i == 'citizen_id':
             return MyError("field citizen_id cannot be rewritten")
@@ -129,7 +196,16 @@ def changeProfile(data, pers):
     return pers
 
 def workWithRelatives(pers, futRel):
-    """function for adding and deleting relatives"""
+
+    """
+    function for adding and deleting relatives
+    :param pers: Person(Model) old Data
+    :param futRel: set of future relatives
+    :return:
+        good exodus: Person(Model) review data
+        bad exodus: MyError with mail of error
+    """
+
     lastRel = getRelatives(pers.id)
 
     toDel = lastRel - futRel
@@ -162,7 +238,13 @@ def workWithRelatives(pers, futRel):
     return pers
 
 def getRelatives(perId):
-    """function for geting set of id relatives of person with perId"""
+
+    """
+    function for geting set of id relatives of person with perId
+    :param perId: person_id
+    :return: set with relatives
+    """
+
     rel = Relatives.objects.filter(person_id = perId) #.values('citizen_id')
     ids = set()
     for i in rel:
@@ -171,7 +253,16 @@ def getRelatives(perId):
     return ids
 
 def getPerson(imp, cit):
-    """"""
+
+    """
+
+    :param imp: import_id of person
+    :param cit: citizen_id of person
+    :return:
+        good exodus: Person(Model)
+        bad exodus: MyError with mail of error
+    """
+
     try:
         pers = Person.objects.filter(import_id = imp , citizen_id = cit)
     except:
@@ -181,6 +272,13 @@ def getPerson(imp, cit):
     return MyError("cannot find person i_id/c_id: " + str(imp) + "/" + str(cit))
 
 def checkPersones(personesMap):
+
+    """
+    Function help first handler
+    :param personesMap: list of new persons
+    :return: import Imp(Model)
+    """
+
     personesList = []
     ids = set()
 
@@ -226,11 +324,25 @@ def checkPersones(personesMap):
     return imp
 
 def deleteImport(import_id):
+
+    """
+    Delete all objects with import_id
+    :param import_id:
+    :return: None
+    """
+
     Relatives.objects.filter(import_id=import_id).delete()
     Person.objects.filter(import_id=import_id).delete()
     Imp.objects.filter(import_id=import_id).delete()
 
 def parseDate(s):
+
+    """
+    Function validate s
+    :param s: string like DD.MM.YYYY
+    :return: string like YYYY-MM-DD
+    """
+
     #TODO Проверка даты на сегоддяшнюю дату + Check spelling
     #if len(s) != 11:
     #    return None
