@@ -9,6 +9,7 @@ from .models import Person, Relatives, Imp
 from .MyError import MyError
 from .Birthdays import Birthdays
 from django.db.models import Max
+import datetime
 
 @csrf_exempt
 def post(request):
@@ -340,13 +341,28 @@ def parseDate(s):
     """
     Function validate s
     :param s: string like DD.MM.YYYY
-    :return: string like YYYY-MM-DD
+    :return:
+        good exodus: string like YYYY-MM-DD
+        bad exodus: None
     """
 
-    #TODO Проверка даты на сегоддяшнюю дату + Check spelling
+
     #if len(s) != 11:
     #    return None
     m = s.split('.')
     if len(m) != 3:
         return None
+    date = datetime.date.today()
+    try:
+        if date.year < int(m[2]):
+            return None
+        if date.year == int(m[2]):
+            if date.month < int(m[1]):
+                return None
+            if date.month == int(m[1]):
+                if date.day < int(m[0]):
+                    return None
+    except:
+        return None
+
     return '-'.join(m[::-1])
