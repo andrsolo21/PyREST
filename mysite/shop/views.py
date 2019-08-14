@@ -5,11 +5,13 @@ import json
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from .models import Person, Relatives, Imp
+from .models import Person, Relatives, Imp, forChange
 from .MyError import MyError
 from .Birthdays import Birthdays
+from .TownYearsPerc import TownYearsPerc
 from django.db.models import Max
 import datetime
+import numpy as np
 
 @csrf_exempt
 def post(request):
@@ -104,6 +106,46 @@ def birthdayR(request, imp):
         return JsonResponse(dict( data = otv), status = 200)
     return HttpResponse(status = 501)
 
+@csrf_exempt
+def townBirthdayR(request, imp):
+
+    """
+    Handler for the fiveth request in SfYBS(ship for yandex backend school)
+    :param request: http request
+    :param imp: number of import_id of the persons
+    :return: http response
+    """
+
+    if request.method == "GET":
+        otv, err = townBirtdays(imp)
+        if not err:
+            return JsonResponse(otv.as_json(),status = otv.numError)
+        return JsonResponse(dict( data = otv), status = 200)
+    return HttpResponse(status = 501)
+
+def townBirtdays(imp):
+
+    """
+    Function help fiveth handler
+    :param imp: number of import_id
+    :return:
+        good exodus: list percentiles | TRUE
+        bad exodus: MyError with mail, that persons not found | FALSE
+    """
+
+    pers = Person.objects.filter(import_id = imp)
+    if not len(pers):
+        return MyError('cannot find persons with this import_id', 404), False
+
+
+
+    TYP = TownYearsPerc()
+
+    for per in pers:
+        TYP.add(per.town,per.getAge)
+
+    return TYP.export(), True
+
 def getBirthdays(imp):
 
     """
@@ -159,7 +201,7 @@ def changeProfile(data, pers):
         if i == 'citizen_id':
             return MyError("field citizen_id cannot be rewritten")
 
-        if i not in Person.forChange:
+        if i not in forChange:
             return MyError("field " + str(i) + " does not exist")
 
         if i == 'town':

@@ -37,8 +37,8 @@ urlpatterns = [
     path('imports/<int:imp>/citizens/', views.getImportR),
     path('imports/<int:imp>/citizens/birthdays', views.birthdayR),
     path('imports/<int:imp>/citizens/birthdays/', views.birthdayR),
+    path('imports/<int:imp>/towns/stat/percentile/age', views.townBirthdayR),
+    path('imports/<int:imp>/towns/stat/percentile/age/', views.townBirthdayR),
     #url(r'^imports/<int:imp>/citizens/5', views.patchImp)
-
-
     #url(r'^post/', views.post)
 ]
