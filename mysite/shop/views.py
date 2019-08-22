@@ -9,7 +9,8 @@ from .models import Person, Relatives, Imp, forChange
 from .MyError import MyError
 from .Birthdays import Birthdays
 from .TownYearsPerc import TownYearsPerc
-from django.db.models import Max
+from django.db import transaction, DataError, Error
+from django import FieldError
 import datetime
 import numpy as np
 
@@ -314,13 +315,18 @@ def getPerson(imp, cit):
         return pers[0]
     return MyError("cannot find person i_id/c_id: " + str(imp) + "/" + str(cit))
 
+#@transaction.atomic
 def checkPersones(personesMap):
 
     """
     Function help first handler
     :param personesMap: list of new persons
     :return: import Imp(Model)
+        if error return MyError
     """
+
+    if not len(personesMap):
+        return MyError("persones list is empty")
 
     personesList = []
     ids = set()
@@ -329,41 +335,58 @@ def checkPersones(personesMap):
     imp = Imp(num = len(personesMap))
     imp.save()
 
-    for i in personesMap:
-        if i['citizen_id'] in ids:
-            deleteImport(imp.import_id)
-            return MyError("citizen_id " + str(i) + "is duplicated")
-        ids.add(i['citizen_id'])
+    try:
+        with transaction.atomic():
 
-    for i in personesMap:
+            for i in personesMap:
+                if checkKeys(i):
+                    deleteImport(imp.import_id)
+                    return checkKeys(i)
+                if i['citizen_id'] in ids:
+                    deleteImport(imp.import_id)
+                    return MyError("citizen_id " + str(i) + "is duplicated")
+                ids.add(i['citizen_id'])
 
-        pers = Person(
-            citizen_id = i['citizen_id'],
-            import_id = imp,
-            town = i['town'],
-            street = i['street'],
-            building = i['building'],
-            appartement = i['appartement'],
-            name = i['name'],
-            birth_date = parseDate(i['birth_date']),
-            gender = i['gender']
-        )
+            for i in personesMap:
 
-        personesList.append(pers)
+                pers = Person(
+                    citizen_id = i['citizen_id'],
+                    import_id = imp,
+                    town = i['town'],
+                    street = i['street'],
+                    building = i['building'],
+                    appartement = i['appartement'],
+                    name = i['name'],
+                    birth_date = parseDate(i['birth_date']),
+                    gender = i['gender']
+                )
 
-    for i in range(len(personesMap)):
+                personesList.append(pers)
 
-        personesList[i].save()
-        for j in personesMap[i]['relatives']:
-            if j not in ids:
-                deleteImport(imp.import_id)
-                return MyError("person " + str(imp.import_id) + "/" +  str(personesMap[i]['citizen_id']) + " (imp/cit) has nonexistent relative: " + str(j))
-            Relatives(
-                import_id = imp,
-                citizen_id = personesMap[i]['citizen_id'],
-                relative_id = j,
-                person_id = personesList[i]
-            ).save()
+            for i in range(len(personesMap)):
+
+                personesList[i].save()
+                for j in personesMap[i]['relatives']:
+                    if j not in ids:
+                        deleteImport(imp.import_id)
+                        return MyError("person " + str(imp.import_id) + "/" +  str(personesMap[i]['citizen_id']) + " (imp/cit) has nonexistent relative: " + str(j))
+                    Relatives(
+                        import_id = imp,
+                        citizen_id = personesMap[i]['citizen_id'],
+                        relative_id = j,
+                        person_id = personesList[i]
+                    ).save()
+
+    except DataError:
+        deleteImport(imp.import_id)
+        #do_stuff()
+        return MyError("Error")
+
+    except Error:
+        deleteImport(imp.import_id)
+        #do_stuff()
+        return MyError("Erro3r")
+
     return imp
 
 def deleteImport(import_id):
@@ -408,3 +431,17 @@ def parseDate(s):
         return None
 
     return '-'.join(m[::-1])
+
+def checkKeys(di):
+
+    """
+    function for checking fields in dictionary
+    :param di: dictionary for checking
+    :return:
+            good exodus: None
+            bad exodus: MyError
+    """
+
+    if 'town' not in di or 'street' not in di or 'building' not in di or 'appartement' not in di or 'name' not in di or 'birth_date' not in di or 'gender' not in di or 'relatives' not in di or 'citizen_id' not in di:
+        return MyError("problem with name of fields")
+    return None

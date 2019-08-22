@@ -30,17 +30,40 @@ class YourTestClass2(TestCase):
         #print(type(dataJ))
 
         #print(dataJ)
+        pass
 
-        i = 0
-        if self.printing:
-            print(self.tests[i][2])
-        self.assertEqual(parseDate(self.tests[i][0]), self.tests[i][1], self.tests[i][2])
+        #i = 0
+        #if self.printing:
+        #    print(self.tests[i][2])
+        #self.assertEqual(parseDate(self.tests[i][0]), self.tests[i][1], self.tests[i][2])
 
-    def test_import(self):
-        with open("tests/persons_1.json", "r") as f:
-            data = f.readlines()
+    def test_import_1(self):
 
-        dataJ = '.'.join(data)
-        resp = self.client.post('/imports/',data = dataJ, content_type='application/json')
+        """good test"""
+
+        with open("tests/data/persons_1.json", "r",encoding="utf-8") as f:
+            data = json.load(f)
+
+        resp = self.client.post('/imports/',data = data, content_type='application/json')
         #resp = self.client.get('/catalog/authors/')
         self.assertEqual(resp.status_code, 201)
+
+    def test_import_2(self):
+
+        """test without one field"""
+
+        with open("tests/data/persons_2.json", "r",encoding="utf-8") as f:
+            data = json.load(f)
+
+        resp = self.client.post('/imports/',data = data, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
+
+    def test_import_3(self):
+
+        """string in place int"""
+
+        with open("tests/data/persons_3.json", "r",encoding="utf-8") as f:
+            data = json.load(f)
+
+        resp = self.client.post('/imports/',data = data, content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
