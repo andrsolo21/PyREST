@@ -25,7 +25,7 @@ SECRET_KEY = 'zk%0fw4tz5aph@!37%4=y%fkthy%3n@c9g-o5a+a=ajmqmktqp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['84.201.160.27']
 
 
 # Application definition
@@ -77,9 +77,11 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER': 'shop_user',
-        'PASSWORD':'password',
-        'NAME': 'shop_db',
+        'USER': 'shop_user_2',
+        'PASSWORD':'mypassword',
+        'NAME': 'shop_db_2',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
