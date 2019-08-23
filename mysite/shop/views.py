@@ -15,7 +15,7 @@ def post(request):
     data = json.load(request)
     return JsonResponse(data=data)
 
-@csrf_exempt
+#@csrf_exempt
 def importsR(request):
     if request.method == "POST":
         data = json.loads(request.body)

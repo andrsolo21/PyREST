@@ -25,7 +25,8 @@ from shop import views
 #from ..shop import views
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
+    
+    path('admin/', admin.site.urls),
     #url(r'^$', views.hello),
     #url(r'^qwe/', views.hello2),
     path('imports/', views.importsR),
