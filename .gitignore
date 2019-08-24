@@ -107,3 +107,5 @@ venv.bak/
 
 
 mysite/shop/migrations/
+
+mysite/mysite/settings\.py
