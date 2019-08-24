@@ -1,5 +1,5 @@
 from django.db import models
-
+import datetime
 # Create your models here.
 
 
@@ -22,6 +22,12 @@ class Person(models.Model):
     #relatives = models.TextField()
 
     def as_json(self, relatives):
+
+        """
+        :param relatives: list of person relatives
+        :return: fields in dictionary for JSON
+        """
+
         return dict(
             #import_id = self.import_id.import_id,
             citizen_id = self.citizen_id,
@@ -35,19 +41,32 @@ class Person(models.Model):
             relatives = list(relatives),
         )
 
+    def getAge(self, date = datetime.date.today()):
+
+        #TODO вычисление возраста
+
+        return self.citizen_id * 10
+
+
     def isError(self):
+
+        """
+        It is not error, there fore
+        :return: FALSE
+        """
+
         return False
 
-    forChange = {
-        'town',
-        'street',
-        'building',
-        'appartement',
-        'name',
-        'birth_date',
-        'gender',
-        'relatives',
-    }
+forChange = {
+    'town',
+    'street',
+    'building',
+    'appartement',
+    'name',
+    'birth_date',
+    'gender',
+    'relatives',
+}
 
 class Relatives(models.Model):
     class Meta:
@@ -65,4 +84,10 @@ class Imp(models.Model):
     #deleted_at =
 
     def isError(self):
+
+        """
+        It is not error too, there fore
+        :return: FALSE
+        """
+
         return False

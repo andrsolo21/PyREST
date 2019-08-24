@@ -106,4 +106,11 @@ venv.bak/
 \.idea/
 mysite/shop/migrations/
 
+<<<<<<< HEAD
 mysite.static/
+=======
+
+mysite/shop/migrations/
+
+mysite/mysite/settings\.py
+>>>>>>> dev_django

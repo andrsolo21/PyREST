@@ -1,0 +1,47 @@
+{
+  "citizens": [
+    {
+      "citizen_id": "erer",
+      "town": "Moscow",
+      "street": "down",
+      "building": "16k7str5",
+      "appartement": 7,
+      "name": "Ivanov",
+      "birth_date": "01.02.2010",
+      "gender": "male",
+      "relatives": [
+        2,
+        3
+      ]
+    },
+    {
+      "citizen_id": 2,
+      "town": "Lvov",
+      "street": "mira",
+      "building": "16кkstr5",
+      "appartement": 8,
+      "name": "Petrov",
+      "birth_date": "01.03.2009",
+      "gender": "male",
+      "relatives": [
+        1,
+        3
+      ]
+    },
+    {
+      "citizen_id": 3,
+      "town": "novgorod",
+      "street": "pobedy",
+      "building": "17кkstr94",
+      "appartement": 9,
+      "name": "Sidorova",
+      "birth_date": "01.09.2009",
+      "gender": "female",
+      "relatives": [
+        1,
+        2
+      ]
+    }
+  ],
+  "exodus": "lfvllndlngljnlk"
+}
