@@ -41,11 +41,17 @@ class Person(models.Model):
             relatives = list(relatives),
         )
 
-    def getAge(self, date = datetime.date.today()):
+    def getAge(self, today = datetime.date.today()):
 
-        #TODO вычисление возраста
+        """
+        function calculate age of person
+        :param today: today's date
+        :return: age
+        """
 
-        return self.citizen_id * 10
+        return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+
+
 
 
     def isError(self):
@@ -57,16 +63,7 @@ class Person(models.Model):
 
         return False
 
-forChange = {
-    'town',
-    'street',
-    'building',
-    'appartement',
-    'name',
-    'birth_date',
-    'gender',
-    'relatives',
-}
+
 
 class Relatives(models.Model):
     class Meta:
