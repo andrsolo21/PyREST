@@ -3,7 +3,7 @@ from django.test import TestCase
 
 import json
 
-class YourTestClass96(TestCase):
+class YourTestClass_2(TestCase):
 
 
     printing = False

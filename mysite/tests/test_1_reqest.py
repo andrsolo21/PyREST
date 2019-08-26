@@ -3,7 +3,7 @@ from django.test import TestCase
 
 import json
 
-class YourTestClass3(TestCase):
+class YourTestClass_1(TestCase):
 
     tests = [['01.02.0289','0289-02-01','1'],
              ['dhfh.gfnhgf.fgf',None,'2'],
