@@ -50,7 +50,7 @@ def importsR(request):
         data = json.loads(request.body)
         otv = checkPersones(data['citizens'])
         if not otv.isError():
-            return JsonResponse({'data':{'import_id':str(otv.import_id)}}, status = 201)
+            return JsonResponse({'data':{'import_id':otv.import_id}}, status = 201)
         else:
             return JsonResponse(otv.as_json() ,status = otv.numError)
 
