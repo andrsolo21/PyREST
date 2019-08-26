@@ -27,14 +27,12 @@ class YourTestClass96(TestCase):
         resp = self.client.post('/imports/',data = data1, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
 
-
-
         data = resp.json()
 
-        self.assertEqual(data.keys()[0], 'data')
+        self.assertFalse((data.get('data')) == None)
 
         if 'data' in data:
-            self.assertEqual(data['data'].keys()[0], 'import_id')
+            self.assertFalse((data['data'].get('import_id')) == None)
 
             if 'import_id' in data['data']:
                 imp_id = data['data']['import_id']
@@ -47,19 +45,35 @@ class YourTestClass96(TestCase):
 
                 dataR = resp.json()
 
-                self.assertEqual(dataR.keys()[0], 'data')
-
-                for key in dataR['data']:
-                    self.assertEqual(data[key], dataR[key])
+                self.assertFalse((dataR.get('data')) == None)
 
 
     def test_import_2_2(self):
 
-        """test without one field"""
+        """test with field citizen_id"""
 
-        pass
+        with open("tests/data/1/persons_1.json", "r",encoding="utf-8") as f:
+            data1 = json.load(f)
 
-    def test_import_2_3(self):
+        resp = self.client.post('/imports/',data = data1, content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
 
-        """string in place int"""
-        pass
+
+
+        data = resp.json()
+
+        print(type(data))
+
+        self.assertFalse((data.get('data')) == None)
+
+        if 'data' in data:
+            self.assertFalse((data['data'].get('import_id')) == None)
+
+            if 'import_id' in data['data']:
+                imp_id = data['data']['import_id']
+
+                with open("tests/data/2/person_2.json", "r",encoding="utf-8") as f:
+                    data = json.load(f)
+
+                resp = self.client.patch('/imports/' + str(imp_id) + '/citizens/1',data = data['data'], content_type='application/json')
+                self.assertEqual(resp.status_code, 400)
