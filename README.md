@@ -31,10 +31,82 @@ opening a project in school backend development
 
 https://github.com/andrsolo21/PyREST
 
-В настройках проекта необходимо указать 
+В настройках проекта в листе ALLOWED_HOSTS необходимо дописать свой ip или домен. 
 
 На этом этапе уже можно запустить сервис:
 
-python manage.py runserver 0.0.0.0:8080
+python mysite/manage.py runserver 0.0.0.0:8080
+
+### Миграции
+
+Вызываем 2 команды:
+
+python mysite/manage.py makemigrations
+
+python mysite/manage.py migrate
 
 ### Настройка gunicorn
+
+открываем файл
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+Вставляем:
+
+[Unit] 
+Description=gunicorn daemon 
+After=network.target 
+
+[Service] 
+User=entrant 
+Group=www-data 
+WorkingDirectory=/home/entrant/code/PyREST 
+ExecStart=/home/entrant/code/PyREST/env/bin/gunicorn —access-logfile - —workers 8 —bind unix:/home/entrant/code/PyREST/mysite.sock mysite.wsgi:application 
+
+[Install] 
+WantedBy=multi-user.target 
+
+запускаем:
+
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+
+### Настройка Nginx
+
+открываем:
+
+sudo vim /etc/nginx/sites-available/mysite
+
+вставляем:
+
+server { 
+listen 80; 
+server_name 84.201.161.199; 
+
+location = /favicon.ico { access_log off; log_not_found off; } 
+location /static/ { 
+root /home/entrant/code/PyREST/mysite; 
+} 
+
+location / { 
+include proxy_params; 
+proxy_pass http://unix:/home/entrant/code/PyREST/mysite/mysite.sock; 
+} 
+}
+
+далее
+
+sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled
+
+sudo systemctl restart nginx
+
+sudo ufw allow 'Nginx Full'
+
+DONE)))))))
+
+## Запуск тестов
+
+python mysite/manage.py test
+
+
+
