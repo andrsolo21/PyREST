@@ -70,7 +70,7 @@ def patchImpR(request, imp, cit):
     if request.method == "PATCH":
         pers = getPerson(imp, cit)
         if pers.isError():
-            print(type(pers.textError))
+            
             return JsonResponse(pers.as_json(),status = pers.numError)
 
         data = json.loads(request.body)
