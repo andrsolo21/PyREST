@@ -225,6 +225,29 @@ class YourTestClass_3(TestCase):
 
                 self.assertFalse((dataR.get('data')) == None)
 
+    def test_import_3_1(self):
+
+        """big import id"""
+
+        with open("tests/data/1/persons_1.json", "r",encoding="utf-8") as f:
+            data1 = json.load(f)
+
+        resp = self.client.post('/imports/',data = data1, content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+
+        data = resp.json()
+
+        self.assertFalse((data.get('data')) == None)
+
+        if 'data' in data:
+            self.assertFalse((data['data'].get('import_id')) == None)
+
+            if 'import_id' in data['data']:
+                imp_id = data['data']['import_id']
+
+                resp = self.client.get('/imports/' + str(imp_id + 200) + '/citizens/')
+                self.assertEqual(resp.status_code, 400)
+
 class YourTestClass_4(TestCase):
 
 
