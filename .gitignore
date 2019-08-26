@@ -112,5 +112,7 @@ mysite.static/
 
 mysite/shop/migrations/
 
-mysite/mysite/settings\.py
+mysite/mysite/settings.py
 >>>>>>> dev_django
+
+mysite/static/

@@ -5,14 +5,25 @@ import json
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from .models import Person, Relatives, Imp, forChange
+from .models import Person, Relatives, Imp
 from .MyError import MyError
 from .Birthdays import Birthdays
 from .TownYearsPerc import TownYearsPerc
 from django.db import transaction, DataError, Error
-from django import FieldError
+#from django import FieldError
 import datetime
 import numpy as np
+
+forChange = {
+    'town',
+    'street',
+    'building',
+    'appartement',
+    'name',
+    'birth_date',
+    'gender',
+    'relatives',
+}
 
 @csrf_exempt
 def post(request):
@@ -26,7 +37,7 @@ def post(request):
     data = json.load(request)
     return JsonResponse(data=data)
 
-#@csrf_exempt
+@csrf_exempt
 def importsR(request):
 
     """
@@ -39,7 +50,7 @@ def importsR(request):
         data = json.loads(request.body)
         otv = checkPersones(data['citizens'])
         if not otv.isError():
-            return JsonResponse({'data':{'import_id':str(otv.import_id)}}, status = 201)
+            return JsonResponse({'data':{'import_id':otv.import_id}}, status = 201)
         else:
             return JsonResponse(otv.as_json() ,status = otv.numError)
 
@@ -143,7 +154,7 @@ def townBirtdays(imp):
     TYP = TownYearsPerc()
 
     for per in pers:
-        TYP.add(per.town,per.getAge)
+        TYP.add(per.town,per.getAge())
 
     return TYP.export(), True
 
@@ -315,7 +326,7 @@ def getPerson(imp, cit):
         return pers[0]
     return MyError("cannot find person i_id/c_id: " + str(imp) + "/" + str(cit))
 
-#@transaction.atomic
+@transaction.atomic
 def checkPersones(personesMap):
 
     """

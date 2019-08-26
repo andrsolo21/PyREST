@@ -1,0 +1,16 @@
+{
+  "data":
+    {
+      "town": "Moscow45",
+      "street": "dorwn",
+      "building": "16k7sr5",
+      "appartement": 79,
+      "name": "Ivanuov",
+      "birth_date": "01.02.2000",
+      "gender": "female",
+      "relatives": [
+        2
+       ]
+    },
+  "exodus": "good test"
+}
