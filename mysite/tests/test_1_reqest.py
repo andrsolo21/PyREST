@@ -1,10 +1,9 @@
 from django.test import TestCase
 
-from shop.views import parseDate
-import datetime
+
 import json
 
-class YourTestClass2(TestCase):
+class YourTestClass3(TestCase):
 
     tests = [['01.02.0289','0289-02-01','1'],
              ['dhfh.gfnhgf.fgf',None,'2'],
@@ -21,48 +20,31 @@ class YourTestClass2(TestCase):
         #print("setUp: Run once for every test method to setup clean data.")
         pass
 
-    def test_goodDate(self):
-
-        #with open("tests/persons_1.json", "r") as f:
-        #    data = f.readlines()
-
-        #dataJ = json.loads('.'.join(data))
-        #print(type(dataJ))
-
-        #print(dataJ)
-        pass
-
-        #i = 0
-        #if self.printing:
-        #    print(self.tests[i][2])
-        #self.assertEqual(parseDate(self.tests[i][0]), self.tests[i][1], self.tests[i][2])
-
-    def test_import_1(self):
+    def test_import_1_1(self):
 
         """good test"""
 
-        with open("tests/data/persons_1.json", "r",encoding="utf-8") as f:
+        with open("tests/data/1/persons_1.json", "r",encoding="utf-8") as f:
             data = json.load(f)
 
         resp = self.client.post('/imports/',data = data, content_type='application/json')
-        #resp = self.client.get('/catalog/authors/')
         self.assertEqual(resp.status_code, 201)
 
-    def test_import_2(self):
+    def test_import_1_2(self):
 
         """test without one field"""
 
-        with open("tests/data/persons_2.json", "r",encoding="utf-8") as f:
+        with open("tests/data/1/persons_2.json", "r",encoding="utf-8") as f:
             data = json.load(f)
 
         resp = self.client.post('/imports/',data = data, content_type='application/json')
         self.assertEqual(resp.status_code, 400)
 
-    def test_import_3(self):
+    def test_import_1_3(self):
 
         """string in place int"""
 
-        with open("tests/data/persons_3.json", "r",encoding="utf-8") as f:
+        with open("tests/data/1/persons_3.json", "r",encoding="utf-8") as f:
             data = json.load(f)
 
         resp = self.client.post('/imports/',data = data, content_type='application/json')
