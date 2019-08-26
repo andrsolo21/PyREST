@@ -199,6 +199,7 @@ def getImport(imp):
         otv.append(i.as_json(getRelatives(i.id)))
     return otv, True
 
+@transaction.atomic
 def changeProfile(data, pers):
 
     """
@@ -210,45 +211,49 @@ def changeProfile(data, pers):
         bad exodus: MyError with mail of error
     """
 
-    for i in data:
-        if i == 'citizen_id':
-            return MyError("field citizen_id cannot be rewritten")
+    try:
+        with transaction.atomic():
+            for i in data:
+                if i == 'citizen_id':
+                    return MyError("field citizen_id cannot be rewritten")
 
-        if i not in forChange:
-            return MyError("field " + str(i) + " does not exist")
+                if i not in forChange:
+                    return MyError("field " + str(i) + " does not exist")
 
-        if i == 'town':
-            pers.town = data['town']
+                if i == 'town':
+                    pers.town = data['town']
 
-        if i == 'street':
-            pers.street = data['street']
+                if i == 'street':
+                    pers.street = data['street']
 
-        if i == 'building':
-            pers.building = data['building']
+                if i == 'building':
+                    pers.building = data['building']
 
-        if i == 'appartement':
-            pers.appartement = data['appartement']
+                if i == 'appartement':
+                    pers.appartement = data['appartement']
 
-        if i == 'name':
-            pers.name = data['name']
+                if i == 'name':
+                    pers.name = data['name']
 
-        if i == 'gender':
-            pers.gender = data['gender']
+                if i == 'gender':
+                    pers.gender = data['gender']
 
-        if i == 'birth_date':
-            date = parseDate(data['birth_date'])
-            if not date:
-                return MyError('cannot parse date')
-            else:
-                pers.birth_date = date
+                if i == 'birth_date':
+                    date = parseDate(data['birth_date'])
+                    if not date:
+                        return MyError('cannot parse date')
+                    else:
+                        pers.birth_date = date
 
 
 
-    if 'relatives' in data:
-        pers = workWithRelatives(pers, set(data['relatives']))
-        if pers.isError():
-            return pers
-    pers.save()
+            if 'relatives' in data:
+                pers = workWithRelatives(pers, set(data['relatives']))
+                if pers.isError():
+                    return pers
+            pers.save()
+    except:
+        return MyError('error')
     return pers
 
 def workWithRelatives(pers, futRel):
@@ -261,36 +266,39 @@ def workWithRelatives(pers, futRel):
         good exodus: Person(Model) review data
         bad exodus: MyError with mail of error
     """
+    try:
+        lastRel = getRelatives(pers.id)
 
-    lastRel = getRelatives(pers.id)
+        toDel = lastRel - futRel
+        toAdd = futRel - lastRel
 
-    toDel = lastRel - futRel
-    toAdd = futRel - lastRel
+        #return MyError("-".join(list(toDel)) + " * " + "+".join(list(toAdd)))
 
-    #return MyError("-".join(list(toDel)) + " * " + "+".join(list(toAdd)))
+        for i in toDel:
+            Relatives.objects.filter(import_id = pers.import_id, relative_id = pers.citizen_id, citizen_id = i).delete()
+            Relatives.objects.filter(import_id = pers.import_id, relative_id = i, citizen_id = pers.citizen_id).delete()
 
-    for i in toDel:
-        Relatives.objects.filter(import_id = pers.import_id, relative_id = pers.citizen_id, citizen_id = i).delete()
-        Relatives.objects.filter(import_id = pers.import_id, relative_id = i, citizen_id = pers.citizen_id).delete()
+        for i in toAdd:
+            pers2 = getPerson(pers.import_id, i)
+            if not pers2:
+                return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i), 400)
 
-    for i in toAdd:
-        pers2 = getPerson(pers.import_id, i)
-        if not pers2:
-            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i), 400)
+            Relatives(
+                import_id = pers.import_id,
+                citizen_id = pers.citizen_id,
+                relative_id = i,
+                person_id = pers,
+            ).save()
 
-        Relatives(
-            import_id = pers.import_id,
-            citizen_id = pers.citizen_id,
-            relative_id = i,
-            person_id = pers,
-        ).save()
+            Relatives(
+                import_id = pers.import_id,
+                citizen_id = i,
+                relative_id = pers.citizen_id,
+                person_id = pers2,
+            ).save()
+    except:
+        return MyError("bim-bom-bom")
 
-        Relatives(
-            import_id = pers.import_id,
-            citizen_id = i,
-            relative_id = pers.citizen_id,
-            person_id = pers2,
-        ).save()
     return pers
 
 def getRelatives(perId):
@@ -398,6 +406,14 @@ def checkPersones(personesMap):
         deleteImport(imp.import_id)
         #do_stuff()
         return MyError("Erro3r")
+
+    except:
+        deleteImport(imp.import_id)
+        #do_stuff()
+        return MyError("bam-bam-bam")
+
+
+
 
     return imp
 
