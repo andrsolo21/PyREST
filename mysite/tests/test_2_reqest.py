@@ -27,7 +27,9 @@ class YourTestClass96(TestCase):
         resp = self.client.post('/imports/',data = data1, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
 
-        data = json.loads(resp.body)
+
+
+        data = resp.json()
 
         self.assertEqual(data.keys()[0], 'data')
 
@@ -40,10 +42,10 @@ class YourTestClass96(TestCase):
                 with open("tests/data/2/person_1.json", "r",encoding="utf-8") as f:
                     data = json.load(f)
 
-                resp = self.client.post('/imports/' + str(imp_id) + '/citizens/1',data = data['data'], content_type='application/json')
+                resp = self.client.patch('/imports/' + str(imp_id) + '/citizens/1',data = data['data'], content_type='application/json')
                 self.assertEqual(resp.status_code, 200)
 
-                dataR = json.loads(resp.body)
+                dataR = resp.json()
 
                 self.assertEqual(dataR.keys()[0], 'data')
 

@@ -44,7 +44,7 @@ class YourTestClass3(TestCase):
 
         """string in place int"""
 
-        with open("tests/data/1/persons_3.json", "r",encoding="utf-8") as f:
+        with open("tests/data/1/persons_2.json", "r",encoding="utf-8") as f:
             data = json.load(f)
 
         resp = self.client.post('/imports/',data = data, content_type='application/json')
