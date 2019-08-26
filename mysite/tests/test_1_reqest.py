@@ -39,13 +39,3 @@ class YourTestClass3(TestCase):
 
         resp = self.client.post('/imports/',data = data, content_type='application/json')
         self.assertEqual(resp.status_code, 400)
-
-    def test_import_1_3(self):
-
-        """string in place int"""
-
-        with open("tests/data/1/persons_2.json", "r",encoding="utf-8") as f:
-            data = json.load(f)
-
-        resp = self.client.post('/imports/',data = data, content_type='application/json')
-        self.assertEqual(resp.status_code, 400)
