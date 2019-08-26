@@ -1,7 +1,6 @@
 from django.test import TestCase
 
-from shop.views import parseDate
-import datetime
+
 
 class YourTestClass(TestCase):
 

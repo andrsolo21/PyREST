@@ -106,17 +106,8 @@ DONE)))))))
 
 ## Запуск тестов
 
-python mysite/manage.py test tests.test_1_reqest
+python mysite/manage.py test tests.test_reqest
 
-python mysite/manage.py test tests.test_2_reqest
-
-python mysite/manage.py test tests.test_3_reqest
-
-python mysite/manage.py test tests.test_4_reqest
-
-python mysite/manage.py test tests.test_5_reqest
-
-python mysite/manage.py test tests.test_date
 
 
 
