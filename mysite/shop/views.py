@@ -54,7 +54,7 @@ def importsR(request):
         else:
             return JsonResponse(otv.as_json() ,status = otv.numError)
 
-    return HttpResponse(status = 401)
+    return HttpResponse(status = 400)
 
 @csrf_exempt
 def patchImpR(request, imp, cit):
@@ -69,8 +69,9 @@ def patchImpR(request, imp, cit):
 
     if request.method == "PATCH":
         pers = getPerson(imp, cit)
-        if not pers:
-            return JsonResponse(MyError("person not found").as_json(),status = 403)
+        if pers.isError():
+            print(type(pers.textError))
+            return JsonResponse(pers.as_json(),status = pers.numError)
 
         data = json.loads(request.body)
 
@@ -147,7 +148,7 @@ def townBirtdays(imp):
 
     pers = Person.objects.filter(import_id = imp)
     if not len(pers):
-        return MyError('cannot find persons with this import_id', 404), False
+        return MyError('cannot find persons with this import_id', 400), False
 
 
 
@@ -170,7 +171,7 @@ def getBirthdays(imp):
 
     rels = Relatives.objects.filter(import_id = imp)
     if not len(rels):
-        return MyError('cannot find persons with this import_id', 404), False
+        return MyError('cannot find persons with this import_id', 400), False
 
     DRs = Birthdays()
 
@@ -191,7 +192,7 @@ def getImport(imp):
 
     perss = Person.objects.filter(import_id = imp)
     if not len(perss):
-        return MyError('cannot find persones with this import_id', 404), False
+        return MyError('cannot find persones with this import_id', 400), False
 
     otv = []
     for i in perss:
@@ -275,7 +276,7 @@ def workWithRelatives(pers, futRel):
     for i in toAdd:
         pers2 = getPerson(pers.import_id, i)
         if not pers2:
-            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i), 404)
+            return MyError("cannot find person i_id/c_id: " + str(pers.import_id) + "/" + str(i), 400)
 
         Relatives(
             import_id = pers.import_id,
@@ -324,7 +325,7 @@ def getPerson(imp, cit):
         return MyError("DB error")
     if len(pers):
         return pers[0]
-    return MyError("cannot find person i_id/c_id: " + str(imp) + "/" + str(cit))
+    return MyError("cannot find person i_id/c_id " + str(imp) + "/" + str(cit))
 
 @transaction.atomic
 def checkPersones(personesMap):
